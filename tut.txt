@@ -1,0 +1,48 @@
+to generate vapid keys: ./node_modules/.bin/web-push generate-vapid-keys
+
+webPush.setVapidDetails('mailto:test@test.com',public_vapid_key,private_vapid_key);
+This line sends the vapid details so that browser recognizes who is sending the notifications.
+
+app.post(/subscribe):
+
+webPush.sendNotification(subscription,payload).catch(err=>console.error(err));
+This line sends the final notifications with subscription and payload as arguments.
+subscription is the req.body from post request and payload is the head of notification.
+
+if ("serviceWorker" in navigator):
+i.e. check if service worker is supported in the browser or not, navigator is the api for browser
+then add a event listener to the button
+
+event listener is a function which is:
+Register service worker, register push, send push
+
+We are registering a worker in the service worker: so for that helper.js
+const register = await navigator.serviceWorker.register("/helper.js", {
+also define scope so that the serviceWorker is registered on that url
+
+Then register the push using the register variable created
+const subscription = await register.pushManager.subscribe({
+    userVisibleOnly: true,
+    applicationServerKey: urlBase64ToUint8Array(public_vapid_key),
+});
+
+urlBase64ToUint8Array function is for so that vapid keys need to be converted to 
+uint8 array to pass into subscribe call
+
+Finally send push notification by calling the /subscribe api using fetch
+await fetch("/subscribe", {
+    method: "post",
+    body: JSON.stringify(subscription),
+    headers: {
+      "content-type": "application/json",
+    },
+  });
+
+Worker js is a file which has service worker code
+listening for push event 
+self.registration.showNotification(data.title,{
+    body:'',
+    icon: ''
+});
+
+Show notification is the final code to show notification
